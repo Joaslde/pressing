@@ -1,0 +1,9 @@
+# Local tooling, not part of the shared project
+.claude/
+graphify-out/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

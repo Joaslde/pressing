@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+/*
+ * X-Pressing brand tokens.
+ * Orange = primary actions/CTA, White = dominant background (cahier §1.4, §22).
+ * `primary` is darkened enough vs `primary-500` to keep text-on-white at
+ * WCAG AA contrast (>= 4.5:1) since raw brand orange fails that on white.
+ */
+@theme {
+  --color-primary-50: #fff7ed;
+  --color-primary-100: #ffedd5;
+  --color-primary-200: #fed7aa;
+  --color-primary-300: #fdba74;
+  --color-primary-400: #fb923c;
+  --color-primary-500: #f2760f;
+  --color-primary-600: #d35f06;
+  --color-primary-700: #ad4a08;
+  --color-primary-800: #8c3d0e;
+  --color-primary-900: #73340f;
+
+  --color-neutral-50: #fafaf9;
+  --color-neutral-100: #f5f4f2;
+  --color-neutral-200: #e7e5e1;
+  --color-neutral-300: #d3d0c9;
+  --color-neutral-400: #a8a29a;
+  --color-neutral-500: #7c7669;
+  --color-neutral-600: #5c5648;
+  --color-neutral-700: #423e33;
+  --color-neutral-800: #2c2924;
+  --color-neutral-900: #1a1815;
+
+  --color-success: #15803d;
+  --color-warning: #b45309;
+  --color-danger: #b91c1c;
+  --color-info: #1d4ed8;
+
+  --font-sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-neutral-50);
+  color: var(--color-neutral-800);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
