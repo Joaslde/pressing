@@ -1,12 +1,29 @@
 import { forwardRef } from 'react'
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { motion } from 'framer-motion'
 import { cn } from '@/lib/cn'
+import { prefersReducedMotion } from '@/lib/motion'
 import { Spinner } from './Spinner'
 
 type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
 type Size = 'sm' | 'md' | 'lg'
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+// Omit the DOM drag/animation event props - their React DOM types collide
+// with framer-motion's own (gesture-based) versions of the same prop names.
+type ConflictingDomProps =
+  | 'onDrag'
+  | 'onDragStart'
+  | 'onDragEnd'
+  | 'onDragEnter'
+  | 'onDragExit'
+  | 'onDragLeave'
+  | 'onDragOver'
+  | 'onDrop'
+  | 'onAnimationStart'
+  | 'onAnimationEnd'
+  | 'onAnimationIteration'
+
+interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, ConflictingDomProps> {
   variant?: Variant
   size?: Size
   isLoading?: boolean
@@ -46,10 +63,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    const isDisabled = disabled || isLoading
+
     return (
-      <button
+      <motion.button
         ref={ref}
-        disabled={disabled || isLoading}
+        disabled={isDisabled}
+        whileTap={isDisabled || prefersReducedMotion ? undefined : { scale: 0.97 }}
+        transition={{ duration: 0.12 }}
         className={cn(
           'inline-flex items-center justify-center rounded-lg font-medium transition-colors',
           'disabled:cursor-not-allowed',
@@ -67,7 +88,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         {children}
         {!isLoading && rightIcon}
-      </button>
+      </motion.button>
     )
   }
 )
