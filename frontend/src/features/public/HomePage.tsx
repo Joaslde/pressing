@@ -41,7 +41,23 @@ export function HomePage() {
     <div className="overflow-x-clip">
       {/* Hero */}
       <section className="relative overflow-hidden bg-neutral-50">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 md:py-24">
+        {/* Aurora glow - decorative, sits behind the text at low opacity so
+            contrast is unaffected; a slow drift keeps the page feeling alive
+            without being distracting. */}
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-32 -right-24 h-[420px] w-[420px] rounded-full bg-primary-300/40 blur-3xl"
+          animate={prefersReducedMotion ? undefined : { x: [0, 30, 0], y: [0, -20, 0] }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-40 -left-24 h-[380px] w-[380px] rounded-full bg-amber-200/40 blur-3xl"
+          animate={prefersReducedMotion ? undefined : { x: [0, -20, 0], y: [0, 20, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+        />
+
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 md:py-24">
           <motion.div
             initial="hidden"
             animate="show"
@@ -52,7 +68,20 @@ export function HomePage() {
               className="text-4xl font-bold leading-tight text-neutral-900 sm:text-5xl"
             >
               Votre linge propre, repassé et{' '}
-              <span className="text-primary-600">livré directement chez vous.</span>
+              <motion.span
+                className="bg-clip-text text-transparent"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(90deg, var(--color-primary-600), var(--color-primary-400), var(--color-primary-600))',
+                  backgroundSize: '200% 100%',
+                }}
+                animate={
+                  prefersReducedMotion ? undefined : { backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }
+                }
+                transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
+              >
+                livré directement chez vous.
+              </motion.span>
             </motion.h1>
             <motion.p variants={fadeInUp} className="mt-5 text-lg text-neutral-600">
               X-Pressing collecte, nettoie, repasse et livre vos vêtements. Commandez en ligne en
@@ -117,8 +146,13 @@ export function HomePage() {
             variants={staggerContainer}
           >
             {services.map((service) => (
-              <motion.div key={service.id} variants={fadeInUp} whileHover={{ y: -4 }}>
-                <Card className="h-full transition-shadow hover:shadow-md">
+              <motion.div
+                key={service.id}
+                variants={fadeInUp}
+                whileHover={{ y: -6 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              >
+                <Card className="h-full transition-shadow duration-300 hover:shadow-[0_12px_32px_-8px_rgba(242,118,15,0.25)]">
                   <CardBody>
                     <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
                       <IconShirt />
