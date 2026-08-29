@@ -1,0 +1,137 @@
+# Stack de déploiement pour Coolify (build pack « Docker Compose »).
+#
+# Deux usages possibles dans Coolify :
+#   1. Application « Dockerfile » seule + base de données créée comme
+#      ressource Coolify à part  -> ce fichier n'est alors pas utilisé.
+#   2. Application « Docker Compose » -> Coolify construit et gère les
+#      services ci-dessous ensemble. C'est ce que décrit DEPLOYMENT.md.
+#
+# Le fichier sert aussi tel quel pour un `docker compose up -d` manuel sur le
+# VPS, à condition de fournir un .env à côté (voir .env.coolify.example).
+
+# Bloc de variables partagé entre le conteneur web et le worker de queue :
+# les deux doivent voir exactement la même configuration applicative.
+x-app-env: &app-env
+  APP_NAME: ${APP_NAME:-X-Pressing}
+  APP_ENV: ${APP_ENV:-production}
+  APP_KEY: ${APP_KEY:?APP_KEY est obligatoire - php artisan key:generate --show}
+  APP_DEBUG: ${APP_DEBUG:-false}
+  APP_URL: ${APP_URL:?APP_URL est obligatoire - ex. https://api.mondomaine.com}
+  APP_LOCALE: ${APP_LOCALE:-fr}
+  APP_FALLBACK_LOCALE: ${APP_FALLBACK_LOCALE:-en}
+
+  LOG_CHANNEL: ${LOG_CHANNEL:-stack}
+  # stderr : les logs partent dans Docker, donc dans l'onglet Logs de
+  # Coolify, au lieu de gonfler storage/logs à l'intérieur du conteneur.
+  LOG_STACK: ${LOG_STACK:-stderr}
+  LOG_LEVEL: ${LOG_LEVEL:-warning}
+
+  DB_CONNECTION: ${DB_CONNECTION:-mysql}
+  DB_HOST: ${DB_HOST:-mysql}
+  DB_PORT: ${DB_PORT:-3306}
+  DB_DATABASE: ${DB_DATABASE:-xpressing}
+  DB_USERNAME: ${DB_USERNAME:-xpressing}
+  DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD est obligatoire}
+
+  SESSION_DRIVER: ${SESSION_DRIVER:-database}
+  CACHE_STORE: ${CACHE_STORE:-database}
+  QUEUE_CONNECTION: ${QUEUE_CONNECTION:-sync}
+
+  FRONTEND_URL: ${FRONTEND_URL:-}
+  FRONTEND_URLS: ${FRONTEND_URLS:-}
+
+  MAIL_MAILER: ${MAIL_MAILER:-log}
+  MAIL_HOST: ${MAIL_HOST:-127.0.0.1}
+  MAIL_PORT: ${MAIL_PORT:-2525}
+  MAIL_USERNAME: ${MAIL_USERNAME:-}
+  MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+  MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-hello@x-pressing.example}
+  MAIL_FROM_NAME: ${MAIL_FROM_NAME:-X-Pressing}
+
+  KKIAPAY_PUBLIC_KEY: ${KKIAPAY_PUBLIC_KEY:-}
+  KKIAPAY_PRIVATE_KEY: ${KKIAPAY_PRIVATE_KEY:-}
+  KKIAPAY_SECRET: ${KKIAPAY_SECRET:-}
+  KKIAPAY_SANDBOX: ${KKIAPAY_SANDBOX:-true}
+  FEDAPAY_PUBLIC_KEY: ${FEDAPAY_PUBLIC_KEY:-}
+  FEDAPAY_SECRET_KEY: ${FEDAPAY_SECRET_KEY:-}
+  FEDAPAY_SANDBOX: ${FEDAPAY_SANDBOX:-true}
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      <<: *app-env
+      # Interrupteurs lus par docker/entrypoint.sh.
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
+      # Passer à true le temps d'un redémarrage pour peupler la base de
+      # démonstration, puis remettre false : le seeder écrase des données.
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-false}
+    volumes:
+      # Seul storage/app doit survivre à un redéploiement (fichiers générés
+      # ou téléversés). storage/framework et storage/logs sont jetables et
+      # restent dans le conteneur.
+      - app-storage:/var/www/html/storage/app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    # Coolify publie ce port via son reverse proxy : pas de `ports:`, sinon
+    # l'API serait aussi joignable en HTTP brut sur l'IP du VPS, hors TLS.
+    expose:
+      - "80"
+
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-xpressing}
+      MYSQL_USER: ${DB_USERNAME:-xpressing}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD est obligatoire}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD est obligatoire}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      # Le conteneur app attend cette sonde avant de lancer les migrations.
+      # $$ échappe le $ pour que la variable soit lue dans le conteneur, et
+      # non substituée par Compose (le mot de passe reste hors du fichier).
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # Worker de file d'attente : inutile tant que QUEUE_CONNECTION=sync (les
+  # notifications partent alors dans la requête HTTP elle-même). Pour
+  # l'activer : QUEUE_CONNECTION=database, puis démarrer le profil « queue »
+  # (`docker compose --profile queue up -d`, ou dans Coolify : ajouter
+  # « queue » aux profils Compose du service).
+  queue:
+    profiles: ["queue"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      <<: *app-env
+      # Les migrations sont du ressort du seul conteneur app : deux
+      # processus les lançant en parallèle au démarrage se marcheraient
+      # dessus.
+      RUN_MIGRATIONS: "false"
+    volumes:
+      - app-storage:/var/www/html/storage/app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: ["php", "artisan", "queue:work", "--tries=3", "--max-time=3600"]
+    # Le HEALTHCHECK de l'image interroge Apache, qui ne tourne pas ici.
+    healthcheck:
+      disable: true
+
+volumes:
+  app-storage:
+  mysql-data:

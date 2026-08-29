@@ -20,6 +20,15 @@ return Application::configure(basePath: dirname(__DIR__))
         // fallback, so the frontend and API can safely live on different
         // domains without depending on cross-site cookies.
 
+        // Coolify puts the container behind a Traefik reverse proxy, so every
+        // request arrives from the proxy's IP over plain http. Without trusted
+        // proxies, url()/route() emit http:// links and the API rate limiter
+        // buckets every client together. Only the proxy can reach the
+        // container on the internal Docker network, so '*' is safe here;
+        // TRUSTED_PROXIES narrows it to explicit IPs if that ever changes.
+        $proxies = env('TRUSTED_PROXIES', '*');
+        $middleware->trustProxies(at: $proxies === '*' ? '*' : explode(',', $proxies));
+
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
         ]);

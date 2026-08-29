@@ -1,0 +1,41 @@
+# Rien de tout ceci ne doit entrer dans le contexte de build : soit c'est
+# régénéré dans l'image (vendor), soit c'est inutile côté serveur, soit c'est
+# secret (.env). Réduit aussi fortement la taille du contexte envoyé au démon
+# Docker, donc le temps de build sur le VPS.
+
+.git
+.gitignore
+.gitattributes
+.editorconfig
+
+vendor
+node_modules
+public/build
+public/hot
+public/storage
+
+.env
+.env.*
+!.env.example
+
+storage/logs/*
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/debugbar
+storage/pail
+
+tests
+phpunit.xml
+.phpunit.result.cache
+.phpunit.cache
+
+.idea
+.vscode
+.fleet
+.nova
+.zed
+.phpactor.json
+
+*.md
+!DEPLOYMENT.md
