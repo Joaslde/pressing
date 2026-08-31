@@ -7,7 +7,3 @@ graphify-out/
 Thumbs.db
 .vscode/
 .idea/
-
-# Raw source images dropped at repo root - the copies actually used by the
-# site live in frontend/src/assets/images/
-/images/

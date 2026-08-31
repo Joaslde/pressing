@@ -6,7 +6,6 @@ import { ErrorState } from '@/components/ui/ErrorState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { IconShirt } from '@/components/ui/icons'
 import { useServices } from '@/features/catalog/useCatalog'
-import servicesImage from '@/assets/images/panneau-repassage.webp'
 
 export function ServicesPage() {
   const { data: services, isLoading, isError, refetch } = useServices()
@@ -19,14 +18,6 @@ export function ServicesPage() {
           Choisissez le traitement adapté à vos vêtements. Les descriptions et prestations
           définitives seront validées par le pressing.
         </p>
-      </div>
-
-      <div className="mx-auto mb-10 max-w-2xl overflow-hidden rounded-2xl shadow-md">
-        <img
-          src={servicesImage}
-          alt="Linge plié et fer à repasser, symboles de la propreté et du soin X-Pressing"
-          className="w-full"
-        />
       </div>
 
       {isLoading && (
