@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { IconBox, IconCheck, IconClock, IconShirt, IconTruck } from '@/components/ui/icons'
-import howItWorksImage from '@/assets/images/panneau-lavage.png'
+import howItWorksImage from '@/assets/images/panneau-lavage.webp'
 
 const steps = [
   {

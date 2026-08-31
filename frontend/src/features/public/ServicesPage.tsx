@@ -6,7 +6,7 @@ import { ErrorState } from '@/components/ui/ErrorState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { IconShirt } from '@/components/ui/icons'
 import { useServices } from '@/features/catalog/useCatalog'
-import servicesImage from '@/assets/images/panneau-repassage.png'
+import servicesImage from '@/assets/images/panneau-repassage.webp'
 
 export function ServicesPage() {
   const { data: services, isLoading, isError, refetch } = useServices()

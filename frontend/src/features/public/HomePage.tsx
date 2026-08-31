@@ -14,8 +14,8 @@ import {
 } from '@/components/ui/icons'
 import { useServices } from '@/features/catalog/useCatalog'
 import { fadeInUp, prefersReducedMotion, scaleIn, staggerContainer, viewportOnce } from '@/lib/motion'
-import heroImage from '@/assets/images/panneau-livraison.png'
-import ctaImage from '@/assets/images/panneau-vetements.png'
+import heroImage from '@/assets/images/panneau-livraison.webp'
+import ctaImage from '@/assets/images/panneau-vetements.webp'
 
 const steps = [
   { title: 'Choisissez votre service', icon: <IconShirt /> },
