@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { IconBox, IconCheck, IconClock, IconShirt, IconTruck } from '@/components/ui/icons'
+import { CleanClothesIllustration } from '@/components/CleanClothesIllustration'
 
 const steps = [
   {
@@ -33,9 +34,13 @@ const steps = [
 export function HowItWorksPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6">
-      <div className="mb-12 text-center">
+      <div className="mb-10 text-center">
         <h1 className="text-3xl font-bold text-neutral-900">Comment ça marche ?</h1>
         <p className="mt-2 text-neutral-600">De la commande à la livraison, en 5 étapes simples.</p>
+      </div>
+
+      <div className="mx-auto mb-12 max-w-xs">
+        <CleanClothesIllustration />
       </div>
 
       <ol className="flex flex-col gap-6">

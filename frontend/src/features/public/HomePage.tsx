@@ -9,12 +9,12 @@ import {
   IconCheck,
   IconClock,
   IconCreditCard,
-  IconMapPin,
   IconShirt,
   IconTruck,
 } from '@/components/ui/icons'
 import { useServices } from '@/features/catalog/useCatalog'
 import { HeroIllustration } from '@/components/HeroIllustration'
+import { DeliveryDoorIllustration } from '@/components/DeliveryDoorIllustration'
 import { fadeInUp, prefersReducedMotion, scaleIn, staggerContainer, viewportOnce } from '@/lib/motion'
 
 const steps = [
@@ -233,29 +233,39 @@ export function HomePage() {
 
       {/* CTA */}
       <section className="bg-primary-600">
-        <motion.div
-          className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 py-16 text-center sm:px-6"
-          initial="hidden"
-          whileInView="show"
-          viewport={viewportOnce}
-          variants={scaleIn}
-        >
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 md:grid-cols-2">
           <motion.div
-            animate={prefersReducedMotion ? undefined : { y: [0, -6, 0] }}
-            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+            className="text-center md:text-left"
+            initial="hidden"
+            whileInView="show"
+            viewport={viewportOnce}
+            variants={staggerContainer}
           >
-            <IconMapPin className="text-white" width={32} height={32} />
+            <motion.h2 variants={fadeInUp} className="text-3xl font-bold text-white">
+              Prêt à gagner du temps ?
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="mx-auto mt-3 max-w-xl text-primary-50 md:mx-0">
+              Programmez votre collecte dès maintenant et laissez-nous nous occuper du reste.
+            </motion.p>
+            <motion.div variants={fadeInUp} className="mt-6">
+              <Link to="/commander">
+                <Button size="lg" variant="secondary">
+                  Commander maintenant
+                </Button>
+              </Link>
+            </motion.div>
           </motion.div>
-          <h2 className="text-3xl font-bold text-white">Prêt à gagner du temps ?</h2>
-          <p className="max-w-xl text-primary-50">
-            Programmez votre collecte dès maintenant et laissez-nous nous occuper du reste.
-          </p>
-          <Link to="/commander">
-            <Button size="lg" variant="secondary">
-              Commander maintenant
-            </Button>
-          </Link>
-        </motion.div>
+
+          <motion.div
+            className="mx-auto w-full max-w-sm"
+            initial={{ opacity: 0, scale: 0.92 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={viewportOnce}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <DeliveryDoorIllustration />
+          </motion.div>
+        </div>
       </section>
 
       {/* Paiement */}
