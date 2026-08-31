@@ -13,9 +13,9 @@ import {
   IconTruck,
 } from '@/components/ui/icons'
 import { useServices } from '@/features/catalog/useCatalog'
-import { HeroIllustration } from '@/components/HeroIllustration'
 import { DeliveryDoorIllustration } from '@/components/DeliveryDoorIllustration'
 import { fadeInUp, prefersReducedMotion, scaleIn, staggerContainer, viewportOnce } from '@/lib/motion'
+import heroFloatingImage from '@/assets/images/hero-floating.webp'
 
 const steps = [
   { title: 'Choisissez votre service', icon: <IconShirt /> },
@@ -106,11 +106,15 @@ export function HomePage() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
           >
             <motion.div
-              className="aspect-4/3 w-full overflow-hidden rounded-2xl shadow-lg"
+              className="aspect-[3/2] w-full overflow-hidden rounded-2xl shadow-lg"
               animate={prefersReducedMotion ? undefined : { y: [0, -12, 0] }}
               transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
             >
-              <HeroIllustration />
+              <img
+                src={heroFloatingImage}
+                alt="Un livreur X-Pressing remet un sac de linge propre à une cliente devant chez elle"
+                className="h-full w-full object-cover"
+              />
             </motion.div>
           </motion.div>
         </div>
