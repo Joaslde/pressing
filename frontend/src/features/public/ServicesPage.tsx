@@ -44,7 +44,7 @@ export function ServicesPage() {
         {services && services.length > 0 && (
           <div className="grid gap-5 sm:grid-cols-2">
             {services.map((service) => (
-              <Card key={service.id}>
+              <Card key={service.id} className="bg-white/70! backdrop-blur-sm">
                 <CardBody>
                   <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
                     <IconShirt />
