@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { IconBox, IconCheck, IconClock, IconShirt, IconTruck } from '@/components/ui/icons'
-import { CleanClothesIllustration } from '@/components/CleanClothesIllustration'
+import howItWorksImage from '@/assets/images/panneau-lavage.png'
 
 const steps = [
   {
@@ -39,8 +39,12 @@ export function HowItWorksPage() {
         <p className="mt-2 text-neutral-600">De la commande à la livraison, en 5 étapes simples.</p>
       </div>
 
-      <div className="mx-auto mb-12 max-w-xs">
-        <CleanClothesIllustration />
+      <div className="mx-auto mb-12 max-w-lg overflow-hidden rounded-2xl shadow-md">
+        <img
+          src={howItWorksImage}
+          alt="Machine à laver, linge propre et pictogrammes des services : lavage, repassage, lavage + repassage, nettoyage à sec"
+          className="w-full"
+        />
       </div>
 
       <ol className="flex flex-col gap-6">
