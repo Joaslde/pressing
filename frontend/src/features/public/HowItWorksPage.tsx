@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { IconBox, IconCheck, IconClock, IconShirt, IconTruck } from '@/components/ui/icons'
-import { CleanClothesIllustration } from '@/components/CleanClothesIllustration'
 
 const steps = [
   {
@@ -39,8 +38,19 @@ export function HowItWorksPage() {
         <p className="mt-2 text-neutral-600">De la commande à la livraison, en 5 étapes simples.</p>
       </div>
 
-      <div className="mx-auto mb-12 max-w-xs">
-        <CleanClothesIllustration />
+      <div className="mx-auto mb-12 max-w-2xl">
+        <h2 className="mb-4 text-center text-lg font-semibold text-neutral-900">
+          Regardez la vidéo de démonstration
+        </h2>
+        <video
+          controls
+          preload="metadata"
+          className="w-full rounded-2xl bg-neutral-900 shadow-md"
+          aria-label="Vidéo montrant comment utiliser l'application X-Pressing, étape par étape"
+        >
+          <source src="/videos/comment-utiliser-x-pressing.mp4" type="video/mp4" />
+          Votre navigateur ne prend pas en charge la lecture de vidéos.
+        </video>
       </div>
 
       <ol className="flex flex-col gap-6">
