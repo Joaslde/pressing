@@ -3,11 +3,12 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import { Button } from '@/components/ui/Button'
+import { GOOGLE_CLIENT_ID, GoogleSignInButton } from '@/components/GoogleSignInButton'
 import { Input } from '@/components/ui/Input'
 import { useToast } from '@/components/ui/toastStore'
 import { getApiErrorMessage, getApiFieldErrors } from '@/lib/api'
 import { phoneSchema } from '@/lib/validation'
-import { useRegister } from './useAuth'
+import { useGoogleLogin, useRegister } from './useAuth'
 
 const schema = z
   .object({
@@ -33,6 +34,7 @@ export function RegisterPage() {
     formState: { errors },
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
   const registerUser = useRegister()
+  const googleLogin = useGoogleLogin()
   const navigate = useNavigate()
   const toast = useToast()
 
@@ -50,6 +52,16 @@ export function RegisterPage() {
       } else {
         toast.error('Inscription impossible', getApiErrorMessage(error))
       }
+    }
+  }
+
+  const handleGoogleCredential = async (credential: string) => {
+    try {
+      const data = await googleLogin.mutateAsync(credential)
+      toast.success('Bienvenue !', 'Votre compte a été créé avec succès.')
+      navigate(data.redirect_to, { replace: true })
+    } catch (error) {
+      toast.error('Connexion Google impossible', getApiErrorMessage(error))
     }
   }
 
@@ -93,6 +105,18 @@ export function RegisterPage() {
           Créer mon compte
         </Button>
       </form>
+
+      {GOOGLE_CLIENT_ID && (
+        <>
+          <div className="my-6 flex items-center gap-3 text-xs text-neutral-400">
+            <div className="h-px flex-1 bg-neutral-200" />
+            ou
+            <div className="h-px flex-1 bg-neutral-200" />
+          </div>
+
+          <GoogleSignInButton onCredential={handleGoogleCredential} />
+        </>
+      )}
 
       <p className="mt-6 text-center text-sm text-neutral-600">
         Déjà un compte ?{' '}

@@ -33,9 +33,15 @@ class ClientController extends Controller
 
         return response()->json([
             'client' => new UserResource($client),
-            'orders' => OrderResource::collection(
-                $client->orders()->with(['service', 'timeSlot'])->latest()->get()
-            ),
+            // Explicitly wrapped in `data` - this isn't paginated, so Laravel's
+            // resource collection doesn't apply its usual auto-wrapping here,
+            // and the frontend expects `orders.data` consistently with the
+            // paginated list endpoints.
+            'orders' => [
+                'data' => OrderResource::collection(
+                    $client->orders()->with(['service', 'timeSlot'])->latest()->get()
+                ),
+            ],
         ]);
     }
 

@@ -48,4 +48,11 @@ return [
         'sandbox' => env('FEDAPAY_SANDBOX', true),
     ],
 
+    'google' => [
+        // OAuth Client ID only (Web application type) - the "Sign in with
+        // Google" button flow verifies a signed ID token server-side, so no
+        // client secret is needed at all.
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+    ],
+
 ];

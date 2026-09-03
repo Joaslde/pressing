@@ -85,6 +85,23 @@ export function useLogin() {
   })
 }
 
+export function useGoogleLogin() {
+  const setUser = useAuthStore((s) => s.setUser)
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (credential: string) => {
+      const { data } = await api.post<AuthResponse>('/auth/google', { credential })
+      return data
+    },
+    onSuccess: (data) => {
+      setStoredToken(data.token)
+      setUser(data.user)
+      queryClient.setQueryData(['auth', 'me'], data.user)
+    },
+  })
+}
+
 export function useLogout() {
   const setUser = useAuthStore((s) => s.setUser)
   const queryClient = useQueryClient()
