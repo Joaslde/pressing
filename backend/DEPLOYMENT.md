@@ -121,3 +121,6 @@ sous-domaine compris).
 
 *Note : `Procfile` est un vestige du déploiement Koyeb (buildpack PHP) et
 n'est pas utilisé par Docker/Coolify.*
+
+<!-- redeploy-trigger: 2026-09-07 -->
+
