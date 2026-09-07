@@ -46,6 +46,23 @@ function formatFcfa(amount: number) {
   return `${amount.toLocaleString('fr-FR')} FCFA`
 }
 
+// Mirrors the backend's OrderStatusService rules for these two transitions
+// (confirmed -> pickup_scheduled, {ready, awaiting_balance} -> delivery_scheduled)
+// so the UI can explain upfront why "Affecter" is unavailable, instead of
+// letting the admin click it and only then finding out from an error toast.
+const assignmentRequirements: Record<'pickup' | 'delivery', OrderStatus[]> = {
+  pickup: ['confirmed'],
+  delivery: ['ready', 'awaiting_balance'],
+}
+
+function assignmentBlockedReason(missionType: 'pickup' | 'delivery', currentStatus: OrderStatus): string | null {
+  const requiredStatuses = assignmentRequirements[missionType]
+  if (requiredStatuses.includes(currentStatus)) return null
+
+  const requiredLabels = requiredStatuses.map((status) => `« ${statusLabels[status]} »`).join(' ou ')
+  return `Affectation possible uniquement quand la commande est ${requiredLabels}. Elle est actuellement « ${statusLabels[currentStatus]} ».`
+}
+
 export function AdminOrderDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { data: order, isLoading, isError, refetch } = useAdminOrder(id)
@@ -92,6 +109,8 @@ export function AdminOrderDetailPage() {
   }
 
   const availableTransitions = nextStatusOptions[order.status] ?? []
+  const pickupBlockedReason = assignmentBlockedReason('pickup', order.status)
+  const deliveryBlockedReason = assignmentBlockedReason('delivery', order.status)
 
   return (
     <div>
@@ -136,34 +155,54 @@ export function AdminOrderDetailPage() {
               <CardBody>
                 <p className="text-sm text-neutral-800">{order.pickup_address?.full_address}</p>
                 <p className="mt-2 text-sm text-neutral-500">{order.pickup_date} - {order.time_slot?.label}</p>
-                <div className="mt-3 flex gap-2">
-                  <Select value={selectedLivreur.pickup} onChange={(e) => setSelectedLivreur((s) => ({ ...s, pickup: e.target.value }))}>
+                <div className="mt-3 flex gap-2" title={pickupBlockedReason ?? undefined}>
+                  <Select
+                    value={selectedLivreur.pickup}
+                    onChange={(e) => setSelectedLivreur((s) => ({ ...s, pickup: e.target.value }))}
+                    disabled={!!pickupBlockedReason}
+                  >
                     <option value="">Choisir un livreur</option>
                     {livreurs?.filter((l) => l.is_active).map((l) => (
                       <option key={l.id} value={l.id}>{l.full_name}</option>
                     ))}
                   </Select>
-                  <Button size="sm" onClick={() => handleAssign('pickup')} isLoading={assignLivreur.isPending} disabled={!selectedLivreur.pickup}>
+                  <Button
+                    size="sm"
+                    onClick={() => handleAssign('pickup')}
+                    isLoading={assignLivreur.isPending}
+                    disabled={!!pickupBlockedReason || !selectedLivreur.pickup}
+                  >
                     Affecter
                   </Button>
                 </div>
+                {pickupBlockedReason && <p className="mt-1.5 text-xs text-neutral-400">{pickupBlockedReason}</p>}
               </CardBody>
             </Card>
             <Card>
               <CardHeader><CardTitle>Livraison</CardTitle></CardHeader>
               <CardBody>
                 <p className="text-sm text-neutral-800">{order.delivery_address?.full_address}</p>
-                <div className="mt-3 flex gap-2">
-                  <Select value={selectedLivreur.delivery} onChange={(e) => setSelectedLivreur((s) => ({ ...s, delivery: e.target.value }))}>
+                <div className="mt-3 flex gap-2" title={deliveryBlockedReason ?? undefined}>
+                  <Select
+                    value={selectedLivreur.delivery}
+                    onChange={(e) => setSelectedLivreur((s) => ({ ...s, delivery: e.target.value }))}
+                    disabled={!!deliveryBlockedReason}
+                  >
                     <option value="">Choisir un livreur</option>
                     {livreurs?.filter((l) => l.is_active).map((l) => (
                       <option key={l.id} value={l.id}>{l.full_name}</option>
                     ))}
                   </Select>
-                  <Button size="sm" onClick={() => handleAssign('delivery')} isLoading={assignLivreur.isPending} disabled={!selectedLivreur.delivery}>
+                  <Button
+                    size="sm"
+                    onClick={() => handleAssign('delivery')}
+                    isLoading={assignLivreur.isPending}
+                    disabled={!!deliveryBlockedReason || !selectedLivreur.delivery}
+                  >
                     Affecter
                   </Button>
                 </div>
+                {deliveryBlockedReason && <p className="mt-1.5 text-xs text-neutral-400">{deliveryBlockedReason}</p>}
               </CardBody>
             </Card>
           </div>
