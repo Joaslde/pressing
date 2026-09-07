@@ -12,7 +12,9 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -55,6 +57,80 @@ class AuthController extends Controller
         if (! $user->is_active) {
             throw ValidationException::withMessages([
                 'email' => ['Ce compte est désactivé. Contactez le support.'],
+            ]);
+        }
+
+        return response()->json([
+            'user' => new UserResource($user),
+            'token' => $user->createToken('spa')->plainTextToken,
+            'redirect_to' => $this->redirectFor($user->role),
+        ]);
+    }
+
+    /**
+     * "Se connecter avec Google" (Google Identity Services one-tap/button
+     * flow): the frontend hands us the signed ID token straight from
+     * Google, we verify it with Google's own tokeninfo endpoint rather than
+     * trusting anything the client claims. Google-authenticated accounts
+     * rely on Google's own password reset and 2-factor security - we don't
+     * duplicate that here, and existing accounts are linked by email.
+     */
+    public function google(Request $request): JsonResponse
+    {
+        $data = $request->validate(['credential' => ['required', 'string']]);
+
+        $response = Http::get('https://oauth2.googleapis.com/tokeninfo', [
+            'id_token' => $data['credential'],
+        ]);
+
+        if (! $response->successful()) {
+            throw ValidationException::withMessages([
+                'credential' => ["Connexion Google impossible : le jeton est invalide ou a expiré. Réessayez."],
+            ]);
+        }
+
+        $payload = $response->json();
+        $expectedClientId = config('services.google.client_id');
+
+        if (! $expectedClientId || ($payload['aud'] ?? null) !== $expectedClientId) {
+            throw ValidationException::withMessages([
+                'credential' => ['Connexion Google impossible : configuration du serveur invalide.'],
+            ]);
+        }
+
+        if (($payload['email_verified'] ?? 'false') !== 'true') {
+            throw ValidationException::withMessages([
+                'credential' => ["Votre adresse email Google doit être vérifiée pour vous connecter."],
+            ]);
+        }
+
+        $googleId = $payload['sub'];
+        $email = $payload['email'];
+
+        $user = User::where('google_id', $googleId)->first()
+            ?? User::where('email', $email)->first();
+
+        if ($user) {
+            if (! $user->google_id) {
+                $user->update(['google_id' => $googleId]);
+            }
+        } else {
+            $user = User::create([
+                'first_name' => $payload['given_name'] ?? 'Compte',
+                'last_name' => $payload['family_name'] ?? 'Google',
+                'phone' => null,
+                'email' => $email,
+                'password' => Hash::make(Str::random(40)),
+                'role' => UserRole::Client,
+                'is_active' => true,
+                'google_id' => $googleId,
+                'email_verified_at' => now(),
+            ]);
+        }
+
+        if (! $user->is_active) {
+            throw ValidationException::withMessages([
+                'credential' => ['Ce compte est désactivé. Contactez le support.'],
             ]);
         }
 

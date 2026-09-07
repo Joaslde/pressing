@@ -3,10 +3,11 @@ import { useForm } from 'react-hook-form'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import { Button } from '@/components/ui/Button'
+import { GOOGLE_CLIENT_ID, GoogleSignInButton } from '@/components/GoogleSignInButton'
 import { Input } from '@/components/ui/Input'
 import { useToast } from '@/components/ui/toastStore'
 import { getApiErrorMessage } from '@/lib/api'
-import { useLogin } from './useAuth'
+import { useGoogleLogin, useLogin } from './useAuth'
 
 const schema = z.object({
   email: z.string().email('Adresse email invalide'),
@@ -22,6 +23,7 @@ export function LoginPage() {
     formState: { errors },
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
   const login = useLogin()
+  const googleLogin = useGoogleLogin()
   const navigate = useNavigate()
   const location = useLocation()
   const toast = useToast()
@@ -34,6 +36,15 @@ export function LoginPage() {
       navigate(from ?? data.redirect_to, { replace: true })
     } catch (error) {
       toast.error('Connexion impossible', getApiErrorMessage(error))
+    }
+  }
+
+  const handleGoogleCredential = async (credential: string) => {
+    try {
+      const data = await googleLogin.mutateAsync(credential)
+      navigate(from ?? data.redirect_to, { replace: true })
+    } catch (error) {
+      toast.error('Connexion Google impossible', getApiErrorMessage(error))
     }
   }
 
@@ -70,6 +81,18 @@ export function LoginPage() {
           Se connecter
         </Button>
       </form>
+
+      {GOOGLE_CLIENT_ID && (
+        <>
+          <div className="my-6 flex items-center gap-3 text-xs text-neutral-400">
+            <div className="h-px flex-1 bg-neutral-200" />
+            ou
+            <div className="h-px flex-1 bg-neutral-200" />
+          </div>
+
+          <GoogleSignInButton onCredential={handleGoogleCredential} />
+        </>
+      )}
 
       <p className="mt-6 text-center text-sm text-neutral-600">
         Pas encore de compte ?{' '}

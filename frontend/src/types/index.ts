@@ -10,6 +10,7 @@ export interface User {
   role: UserRole
   is_active: boolean
   created_at: string
+  has_google_account: boolean
 }
 
 export interface Address {

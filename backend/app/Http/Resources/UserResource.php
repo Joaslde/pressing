@@ -18,11 +18,12 @@ class UserResource extends JsonResource
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'full_name' => $this->fullName(),
-            'phone' => $this->phone,
+            'phone' => $this->phone ?? '',
             'email' => $this->email,
             'role' => $this->role->value,
             'is_active' => $this->is_active,
             'created_at' => $this->created_at,
+            'has_google_account' => ! is_null($this->google_id),
         ];
     }
 }
