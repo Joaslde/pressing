@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { Button } from '@/components/ui/Button'
 import { GOOGLE_CLIENT_ID, GoogleSignInButton } from '@/components/GoogleSignInButton'
 import { Input } from '@/components/ui/Input'
+import { PasswordInput } from '@/components/ui/PasswordInput'
 import { useToast } from '@/components/ui/toastStore'
 import { getApiErrorMessage, getApiFieldErrors } from '@/lib/api'
 import { phoneSchema } from '@/lib/validation'
@@ -84,18 +85,16 @@ export function RegisterPage() {
           {...register('phone')}
         />
         <Input label="Email" type="email" autoComplete="email" required error={errors.email?.message} {...register('email')} />
-        <Input
+        <PasswordInput
           label="Mot de passe"
-          type="password"
           autoComplete="new-password"
           required
           hint="8 caractères minimum"
           error={errors.password?.message}
           {...register('password')}
         />
-        <Input
+        <PasswordInput
           label="Confirmer le mot de passe"
-          type="password"
           autoComplete="new-password"
           required
           error={errors.password_confirmation?.message}
@@ -114,7 +113,10 @@ export function RegisterPage() {
             <div className="h-px flex-1 bg-neutral-200" />
           </div>
 
-          <GoogleSignInButton onCredential={handleGoogleCredential} />
+          <GoogleSignInButton
+            onCredential={handleGoogleCredential}
+            isLoading={googleLogin.isPending}
+          />
         </>
       )}
 

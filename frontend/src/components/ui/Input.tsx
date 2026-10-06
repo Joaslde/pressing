@@ -7,10 +7,12 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string
   hint?: string
   leftIcon?: ReactNode
+  /** Interactive element pinned to the right edge (e.g. a show-password toggle). */
+  rightElement?: ReactNode
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, hint, leftIcon, id, required, ...props }, ref) => {
+  ({ className, label, error, hint, leftIcon, rightElement, id, required, ...props }, ref) => {
     const generatedId = useId()
     const inputId = id ?? generatedId
     const hintId = hint ? `${inputId}-hint` : undefined
@@ -45,10 +47,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               'transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500',
               error ? 'border-danger' : 'border-neutral-300',
               leftIcon && 'pl-9',
+              rightElement && 'pr-11',
               className
             )}
             {...props}
           />
+          {rightElement && (
+            <span className="absolute right-1.5 top-1/2 -translate-y-1/2">{rightElement}</span>
+          )}
         </div>
         {hint && !error && (
           <p id={hintId} className="text-xs text-neutral-500">

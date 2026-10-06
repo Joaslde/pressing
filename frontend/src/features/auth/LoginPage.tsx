@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { Button } from '@/components/ui/Button'
 import { GOOGLE_CLIENT_ID, GoogleSignInButton } from '@/components/GoogleSignInButton'
 import { Input } from '@/components/ui/Input'
+import { PasswordInput } from '@/components/ui/PasswordInput'
 import { useToast } from '@/components/ui/toastStore'
 import { getApiErrorMessage } from '@/lib/api'
 import { useGoogleLogin, useLogin } from './useAuth'
@@ -64,9 +65,8 @@ export function LoginPage() {
           error={errors.email?.message}
           {...register('email')}
         />
-        <Input
+        <PasswordInput
           label="Mot de passe"
-          type="password"
           autoComplete="current-password"
           required
           error={errors.password?.message}
@@ -90,7 +90,10 @@ export function LoginPage() {
             <div className="h-px flex-1 bg-neutral-200" />
           </div>
 
-          <GoogleSignInButton onCredential={handleGoogleCredential} />
+          <GoogleSignInButton
+            onCredential={handleGoogleCredential}
+            isLoading={googleLogin.isPending}
+          />
         </>
       )}
 

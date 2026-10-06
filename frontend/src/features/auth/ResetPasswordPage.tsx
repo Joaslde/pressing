@@ -4,6 +4,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { PasswordInput } from '@/components/ui/PasswordInput'
 import { useToast } from '@/components/ui/toastStore'
 import { getApiErrorMessage } from '@/lib/api'
 import { useResetPassword } from './useAuth'
@@ -52,16 +53,14 @@ export function ResetPasswordPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 flex flex-col gap-4" noValidate>
         <Input label="Email" type="email" required error={errors.email?.message} {...register('email')} />
-        <Input
+        <PasswordInput
           label="Nouveau mot de passe"
-          type="password"
           required
           error={errors.password?.message}
           {...register('password')}
         />
-        <Input
+        <PasswordInput
           label="Confirmer le mot de passe"
-          type="password"
           required
           error={errors.password_confirmation?.message}
           {...register('password_confirmation')}

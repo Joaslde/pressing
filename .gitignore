@@ -12,3 +12,8 @@ Thumbs.db
 # live under frontend/public/ or frontend/src/assets/
 /images/
 /video/
+TODO_AUTH_GOOGLE.md
+
+# Identifiants recus a la main, ne jamais commiter
+IDENTIFIANTS.pdf
+env.txt

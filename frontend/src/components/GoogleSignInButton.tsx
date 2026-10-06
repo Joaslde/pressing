@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { Spinner } from '@/components/ui/Spinner'
 
 declare global {
   interface Window {
@@ -21,6 +22,8 @@ const CLIENT_ID = GOOGLE_CLIENT_ID
 
 interface GoogleSignInButtonProps {
   onCredential: (credential: string) => void
+  /** True while the credential is being exchanged with our API. */
+  isLoading?: boolean
 }
 
 /**
@@ -31,8 +34,13 @@ interface GoogleSignInButtonProps {
  *
  * Renders nothing if VITE_GOOGLE_CLIENT_ID isn't configured, so the rest of
  * auth keeps working locally/in demos without Google credentials set up.
+ *
+ * Google's button lives in a cross-origin iframe we can't style, so the
+ * loading state is an overlay on top of it rather than a spinner inside.
+ * The button stays mounted underneath so it doesn't need re-rendering if
+ * the sign-in fails and the user tries again.
  */
-export function GoogleSignInButton({ onCredential }: GoogleSignInButtonProps) {
+export function GoogleSignInButton({ onCredential, isLoading = false }: GoogleSignInButtonProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const onCredentialRef = useRef(onCredential)
   onCredentialRef.current = onCredential
@@ -73,5 +81,15 @@ export function GoogleSignInButton({ onCredential }: GoogleSignInButtonProps) {
 
   if (!CLIENT_ID) return null
 
-  return <div ref={containerRef} className="flex justify-center" />
+  return (
+    <div className="relative mx-auto w-fit" aria-busy={isLoading}>
+      <div ref={containerRef} className="flex justify-center" />
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center gap-2 rounded-md border border-neutral-200 bg-white text-sm font-medium text-neutral-600">
+          <Spinner size={18} className="text-primary-500" />
+          Connexion en cours...
+        </div>
+      )}
+    </div>
+  )
 }
